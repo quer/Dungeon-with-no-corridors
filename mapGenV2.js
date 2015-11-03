@@ -3,20 +3,17 @@ function genRoom (arraySize) {
 	//pre settings
 	this.way = {
 		way1 : [7,8,9,10],
-		way2 : [2,3,4,5],
+		way2 : [2,3,4,5,11,16],
 		way3 : [12,13,14,15],
 		way4 : [6],
-		up: [2,5,6,9,12,13,14],
-		down: [3,4,6,7,12,14,15],
-		right: [2,4,6,10,12,13,15],
-		left: [3,5,6,8,13,14,15]
+		up: [2,5,6,9,11,12,13,14],
+		down: [3,4,6,7,11,12,14,15],
+		right: [2,4,6,10,12,13,15,16],
+		left: [3,5,6,8,13,14,15,16]
 	}
 	this.tile = {size: 10, fullSize: 50};
 	this.fullArrayOfMap = [];
 	
-	this.getRoom = function(){
-		return this.fullArrayOfMap;
-	}
 	this.gen = function() {
 		this.fullArrayOfMap = new Array(Math.floor(this.arraySize));
 		for (var i = 0; i < this.fullArrayOfMap.length; i++) {
@@ -26,7 +23,7 @@ function genRoom (arraySize) {
 		var h = Math.floor(this.arraySize/2);
 		//var startT = 10;
 		//while(startT == 10){
-		var startT = Math.floor((Math.random() * 15) + 1);
+		var startT = Math.floor((Math.random() * 15) + 2);
 		//}
 		this.fullArrayOfMap[w][h] = startT;
 		this.getNext(w, h, startT, 0);
