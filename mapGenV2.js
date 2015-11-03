@@ -285,7 +285,7 @@ function genRoom (arraySize) {
 			var returnType = thisTypeTile.length-1;
 			return thisTypeTile[returnType];
 		}else{
-			renderTile(w, h, 25);
+			//renderTile(w, h, 25);
 			return null;
 		}
 	}

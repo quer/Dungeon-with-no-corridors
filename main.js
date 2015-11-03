@@ -10,8 +10,8 @@ ctx.imageSmoothingEnabled = false;
 var room1MaxSize = 100;
 var room1 = new genRoom(room1MaxSize);
 var fullArrayOfMap = null;
+var offset = {x : 0 , y : 0 , zoom : 0 };
 var tile = {size: 10, fullSize: 50};
-var offset = {x : 0 , y : 0 };
 
 function render () {
 	//clear old render
@@ -44,7 +44,7 @@ function render () {
   	};
   	//center room
   	ctx.fillStyle="#FF0000";
-	ctx.fillRect((canvas.width/2)+10-offset.x, (canvas.height/2)+10-offset.y ,tile.fullSize-20,tile.fullSize-20);
+	ctx.fillRect((canvas.width/2)+((tile.fullSize/100)*20)-offset.x, (canvas.height/2)+((tile.fullSize/100)*20)-offset.y ,tile.fullSize-((tile.fullSize/100)*40),tile.fullSize-((tile.fullSize/100)*40));
 	
   	ctx.restore();
 }
@@ -60,7 +60,7 @@ function rendertile (px) {
 		return {x: (px*10)-10, y: 0};
 	}
 }
-var gameMove = {up: false, down: false, right: false, left: false};
+var gameMove = {up: false, down: false, right: false, left: false, zoomOut: false, zoomIn: false};
 jQuery(function($) {
 	$( "#reload" ).click(function() {
 	  loadNewRoom();
@@ -83,6 +83,16 @@ jQuery(function($) {
     {
       offset.x += 4.0;
     }
+    if(gameMove.zoomOut)
+    {
+      //offset.zoom += 1;
+      tile.fullSize -= 1;
+    }
+    if(gameMove.zoomIn)
+    {
+    	tile.fullSize += 1;
+      //offset.zoom += 1;
+    }
     var start = Date.now();
     render();
     var end = Date.now();
@@ -95,48 +105,58 @@ jQuery(function($) {
 });
 
 $(window).keyup(function(key) {
-   // if (inGame) {
-    //socket.emit('stopmove', { key: key.keyCode });
-      if(key.keyCode == 38)
-      {
-        gameMove.up = false;
-      }
-      if(key.keyCode == 37)
-      {
-        gameMove.left = false;
-      }
-      if(key.keyCode == 39)
-      {
-        gameMove.right = false;
-      }
-      if(key.keyCode == 40)
-      {
-        gameMove.down = false;
-      }
-    //}
-  });
-  $(window).keydown(function(key) {
-    //if (inGame) {
-      //socket.emit('startmove', {key: key.keyCode });
-      if(key.keyCode == 38)
-      {
-        gameMove.up = true;
-      }
-      if(key.keyCode == 37)
-      {
-        gameMove.left = true;
-      }
-      if(key.keyCode == 39)
-      {
-        gameMove.right = true;
-      }
-      if(key.keyCode == 40)
-      {
-        gameMove.down = true;
-      }
-    //}
-  });
-  function loadNewRoom() {
+  	if(key.keyCode == 38)
+  	{
+    	gameMove.up = false;
+  	}
+  	if(key.keyCode == 37)
+  	{
+    	gameMove.left = false;
+  	}
+  	if(key.keyCode == 39)
+  	{
+    	gameMove.right = false;
+  	}
+  	if(key.keyCode == 40)
+  	{
+    	gameMove.down = false;
+	}
+	if(key.keyCode == 107)
+  	{
+    	gameMove.zoomIn = false;
+	}
+	if(key.keyCode == 109)
+  	{
+    	gameMove.zoomOut = false;
+	}
+});
+$(window).keydown(function(key) {
+	if(key.keyCode == 38)
+  	{
+    	gameMove.up = true;
+  	}
+  	if(key.keyCode == 37)
+  	{
+    	gameMove.left = true;
+  	}
+  	if(key.keyCode == 39)
+  	{
+    	gameMove.right = true;
+  	}
+  	if(key.keyCode == 40)
+  	{
+    	gameMove.down = true;
+	}
+	if(key.keyCode == 107)
+  	{
+    	gameMove.zoomIn = true;
+	}
+	if(key.keyCode == 109)
+  	{
+    	gameMove.zoomOut = true;
+	}
+});
+function loadNewRoom() {
 	room1.gen();
 	offset.x = 0;
 	offset.y = 0;
