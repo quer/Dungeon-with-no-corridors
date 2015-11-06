@@ -1,5 +1,5 @@
 var canvas = document.getElementsByTagName('canvas')[0];
-var tileSprit = document.getElementById('tile');
+var tileSprit = document.getElementById('maze');
 canvas.width = 1020;
 canvas.height = 660;
 var ctx = canvas.getContext('2d');
@@ -8,45 +8,43 @@ ctx.webkitImageSmoothingEnabled = false;
 ctx.msImageSmoothingEnabled = false;
 ctx.imageSmoothingEnabled = false;
 var room1MaxSize = 100;
-var room1 = new genRoom(room1MaxSize);
+var room1 = new genRoom(room1MaxSize, debug);
 var fullArrayOfMap = null;
 var offset = {x : 0 , y : 0 , zoom : 0 };
-var tile = {size: 10, fullSize: 50};
-
+var tile = {size: 10, fullSize: 50, playerScale: 20};
+var playerSpeed = 4.0;
+var debug = false;
 function render () {
 	//clear old render
 	ctx.save();
-    ctx.translate(0, 0);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  	//show all rooms
-  	if (fullArrayOfMap != null) {
-	  	for (var xi = 0; xi < fullArrayOfMap.length; xi++) {
+  ctx.translate(0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+	//show all rooms
+	if (fullArrayOfMap != null) {
+  	for (var xi = 0; xi < fullArrayOfMap.length; xi++) {
 			for (var yi = 0; yi < fullArrayOfMap[xi].length; yi++) {
-		  		var x = xi*tile.fullSize-((room1MaxSize/2)*tile.fullSize)+(canvas.width/2)-offset.x;
-		  		var y = yi*tile.fullSize-((room1MaxSize/2)*tile.fullSize)+(canvas.height/2)-offset.y;
-
-		  		if (fullArrayOfMap[xi][yi] == 100) {
-		  			ctx.fillStyle="black";
-					ctx.fillRect(x, y, tile.fullSize, tile.fullSize);
-		  		}else if(fullArrayOfMap[xi][yi] == null){
-		  			/*ctx.beginPath();
-	                ctx.strokeStyle="orange";
-	                ctx.rect(xi*tile.fullSize-((room1MaxSize/2)*tile.fullSize)+(canvas.width/2), yi*tile.fullSize-((room1MaxSize/2)*tile.fullSize)+(canvas.height/2), tile.fullSize, tile.fullSize);
-	                ctx.stroke();*/
-					ctx.fillStyle="orange";
-					ctx.fillRect(x, y, tile.fullSize, tile.fullSize);
-		  		}else{
-			  		var tilePlace = rendertile(fullArrayOfMap[xi][yi]);
-			  		ctx.drawImage(tileSprit, tilePlace.x, tilePlace.y, tile.size, tile.size, x, y, tile.fullSize, tile.fullSize);
+		  	var x = xi*tile.fullSize-((room1MaxSize/2)*tile.fullSize)+(canvas.width/2)-offset.x;
+		  	var y = yi*tile.fullSize-((room1MaxSize/2)*tile.fullSize)+(canvas.height/2)-offset.y;
+	  		if (fullArrayOfMap[xi][yi] == 100) {
+	  			ctx.fillStyle="black";
+  				ctx.fillRect(x, y, tile.fullSize, tile.fullSize);
+	  		}else if(fullArrayOfMap[xi][yi] == null){
+          ctx.fillStyle="orange";
+			    ctx.fillRect(x, y, tile.fullSize, tile.fullSize);
+	  		}else{
+		  		var tilePlace = rendertile(fullArrayOfMap[xi][yi]);
+		  		ctx.drawImage(tileSprit, tilePlace.x, tilePlace.y, tile.size, tile.size, x, y, tile.fullSize, tile.fullSize);
 				}
 			}
-	  	}
-  	};
-  	//center room
-  	ctx.fillStyle="#FF0000";
-	ctx.fillRect((canvas.width/2)+((tile.fullSize/100)*20)-offset.x, (canvas.height/2)+((tile.fullSize/100)*20)-offset.y ,tile.fullSize-((tile.fullSize/100)*40),tile.fullSize-((tile.fullSize/100)*40));
-	
-  	ctx.restore();
+	 	}
+  };
+	//center room
+  //ctx.fillStyle="black";
+  //ctx.fillRect((canvas.width/2)+((tile.fullSize/100)*tile.playerScale)-1, (canvas.height/2)+((tile.fullSize/100)*tile.playerScale)-1, tile.fullSize-((tile.fullSize/100)*(tile.playerScale*2))+2, tile.fullSize-((tile.fullSize/100)*(tile.playerScale*2))+2);
+  
+	ctx.fillStyle="#FF0000";
+  ctx.fillRect((canvas.width/2)+((tile.fullSize/100)*tile.playerScale), (canvas.height/2)+((tile.fullSize/100)*tile.playerScale), tile.fullSize-((tile.fullSize/100)*(tile.playerScale*2)), tile.fullSize-((tile.fullSize/100)*(tile.playerScale*2)));
+	ctx.restore();
 }
 
 function rendertile (px) {
@@ -60,28 +58,75 @@ function rendertile (px) {
 		return {x: (px*10)-10, y: 0};
 	}
 }
+function collision (type) {
+  var offsetX = 0;
+  var offsetY = 0;
+  if (type == "right") {
+    offsetX = playerSpeed;
+    offsetY = 0;
+  }else if (type == "left") {
+    offsetX = -playerSpeed;
+    offsetY = 0;
+  }else if (type == "up") {
+    offsetX = 0;
+    offsetY = -playerSpeed;
+  }else if (type == "down") {
+    offsetX = 0;
+    offsetY = playerSpeed;
+  }
+    ctx.font = '16px sans-serif'
+    ctx.textAlign = 'left';
+    var imageData = ctx.getImageData((canvas.width/2)+((tile.fullSize/100)*tile.playerScale)+offsetX, (canvas.height/2)+((tile.fullSize/100)*tile.playerScale)+offsetY, tile.fullSize-((tile.fullSize/100)*(tile.playerScale*2))+offsetX, tile.fullSize-((tile.fullSize/100)*(tile.playerScale*2))+offsetY);
+    var data = imageData.data;
+    for(var i = 0, n = data.length; i < n; i += 4) {
+    	var red = data[i];
+    	var green = data[i + 1];
+    	var blue = data[i + 2];
+    	var alpha = data[i + 3];
+    	if(red == 40 && green == 40 && blue == 40){
+    		ctx.fillText('collision!', 10 , canvas.height - 20);
+    		return true;
+    	}
+    }
+    //ctx.fillText('no collision', 10 , canvas.height - 20);
+    return false;
+}
 var gameMove = {up: false, down: false, right: false, left: false, zoomOut: false, zoomIn: false};
 jQuery(function($) {
 	$( "#reload" ).click(function() {
 	  loadNewRoom();
 	});
+  $( "#mazesheat" ).click(function() {
+    tileSprit = document.getElementById('maze');
+  });
+  $( "#tilesheat" ).click(function() {
+    tileSprit = document.getElementById('tile');
+  });
   loop();
   function loop () {
     if(gameMove.up)
     {
-      offset.y -= 4.0;
+      if (!collision("up")) {
+        offset.y -= playerSpeed;
+      };
     }
     if(gameMove.left)
     {
-      offset.x -= 4.0;
+      if (!collision("left")) {
+        offset.x -= playerSpeed;
+      };
     }
     if(gameMove.down)
     {
-      offset.y += 4.0;
+      if (!collision("down")) {
+        offset.y += playerSpeed;
+      };
     }
     if(gameMove.right)
     {
-      offset.x += 4.0;
+      if (!collision("right")) {
+        offset.x += playerSpeed;
+      };
     }
     if(gameMove.zoomOut)
     {
@@ -99,7 +144,7 @@ jQuery(function($) {
     ctx.font = '16px sans-serif'
     ctx.textAlign = 'center';
     ctx.fillText('Rendered in ' + (end - start) + ' ms', canvas.width / 2, canvas.height - 20);
-
+    collision();
     window.setTimeout(loop, 33);
   }
 });
@@ -161,6 +206,11 @@ function loadNewRoom() {
 	offset.x = 0;
 	offset.y = 0;
 	fullArrayOfMap = room1.fullArrayOfMap;
-	console.log(fullArrayOfMap.join('\n'));
+	debugFun(fullArrayOfMap.join('\n'));
 	render();
+}
+function debugFun (data) {
+  if (debug) {
+    console.log(data);
+  };
 }

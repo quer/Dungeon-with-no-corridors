@@ -1,5 +1,6 @@
-function genRoom (arraySize) {
+function genRoom (arraySize, debug) {
 	this.arraySize = arraySize;
+	this.debugStatus = debug;
 	//pre settings
 	this.way = {
 		way1 : [7,8,9,10],
@@ -13,7 +14,11 @@ function genRoom (arraySize) {
 	}
 	this.tile = {size: 10, fullSize: 50};
 	this.fullArrayOfMap = [];
-	
+	this.debug = function(data) {
+		if (this.debugStatus) {
+			console.log(data);
+		};
+	}
 	this.gen = function() {
 		this.fullArrayOfMap = new Array(Math.floor(this.arraySize));
 		for (var i = 0; i < this.fullArrayOfMap.length; i++) {
@@ -30,13 +35,13 @@ function genRoom (arraySize) {
 		
 	}
 	this.getNext = function (w, h ,t, maxTrin) {
-		console.log(maxTrin);
+		this.debug(maxTrin);
 		var move = {r: false, rt: false, l:false, lt: false, u:false, ut: false, d:false, dt: false};
 		if(this.way.right.indexOf(t) > -1 && this.fullArrayOfMap[w+1][h] == null) {
 			var newTileType = this.getThisTile(w+1, h);
 			if (newTileType != null) {
 				this.fullArrayOfMap[w+1][h] = newTileType;
-				console.log("w:" + (w+1) + " h:" + h + " t:" + newTileType);
+				this.debug("w:" + (w+1) + " h:" + h + " t:" + newTileType);
 				//renderTile(w+1, h, newTileType);
 				if (this.way.way1.indexOf(newTileType) == -1 && maxTrin < 10) {
 					move.r = true;
@@ -49,7 +54,7 @@ function genRoom (arraySize) {
 			var newTileType = this.getThisTile(w-1, h);
 			if (newTileType != null) {
 				this.fullArrayOfMap[w-1][h] = newTileType;
-				console.log("w:" + (w-1) + " h:" + h + " t:" + newTileType);
+				this.debug("w:" + (w-1) + " h:" + h + " t:" + newTileType);
 				//renderTile(w-1, h, newTileType);
 				if (this.way.way1.indexOf(newTileType) == -1 && maxTrin < 10) {
 					move.l = true;
@@ -62,7 +67,7 @@ function genRoom (arraySize) {
 			var newTileType = this.getThisTile(w, h-1);
 			if (newTileType != null) {
 				this.fullArrayOfMap[w][h-1] = newTileType;
-				console.log("w:" + w + " h:" + (h-1) + " t:" + newTileType);
+				this.debug("w:" + w + " h:" + (h-1) + " t:" + newTileType);
 				//renderTile(w, h-1, newTileType);
 				if (this.way.way1.indexOf(newTileType) == -1 && maxTrin < 10) {
 					move.u = true;
@@ -75,7 +80,7 @@ function genRoom (arraySize) {
 			var newTileType = this.getThisTile(w, h+1);
 			if (newTileType != null) {
 				this.fullArrayOfMap[w][h+1] = newTileType;
-				console.log("w:" + w + " h:" + (h+1) + " t:" + newTileType);
+				this.debug("w:" + w + " h:" + (h+1) + " t:" + newTileType);
 				//renderTile(w, h+1, newTileType);
 				if (this.way.way1.indexOf(newTileType) == -1 && maxTrin < 10) {
 					move.d = true;
@@ -84,7 +89,7 @@ function genRoom (arraySize) {
 				};
 			}
 		};
-		console.log("move: " + JSON.stringify(move));
+		this.debug("move: " + JSON.stringify(move));
 		if (move.r) {
 			this.getNext(w+1,h, move.rt, maxTrin);
 		};
@@ -191,7 +196,7 @@ function genRoom (arraySize) {
 	this.getThisTile = function(w, h) {
 		var blackList = [];
 		var haveWay = [];
-		console.log("h b:" + w + " " + h)
+		this.debug("h b:" + w + " " + h)
 		if (this.fullArrayOfMap[w+1][h] != null) {
 			if(this.way.left.indexOf(this.fullArrayOfMap[w+1][h]) > -1){
 				haveWay.push("right");
@@ -230,11 +235,11 @@ function genRoom (arraySize) {
 		};
 		if (haveWay.length > 0) {
 			var thisTypeTile = this.getTileWhitWays(haveWay, blackList);
-			console.log("thisTypeTile: " + thisTypeTile);
+			this.debug("thisTypeTile: " + thisTypeTile);
 			var returnType = Math.floor((Math.random() * (thisTypeTile.length-1)) + 0);
 			return thisTypeTile[returnType];
 		}else{
-			console.log("fail");
+			this.debug("fail");
 			//renderTile(w, h, 25);
 			return null;
 		}
@@ -242,7 +247,7 @@ function genRoom (arraySize) {
 	this.getThisTileEnd = function(w, h) {
 		var blackList = [];
 		var haveWay = [];
-		console.log("h b:" + w + " " + h)
+		this.debug("h b:" + w + " " + h)
 		if (this.fullArrayOfMap[w+1][h] != null) {
 			if(this.way.left.indexOf(this.fullArrayOfMap[w+1][h]) > -1){
 				haveWay.push("right");
@@ -281,7 +286,7 @@ function genRoom (arraySize) {
 		};
 		if (haveWay.length > 0) {
 			var thisTypeTile = getTileWhitWays(haveWay, blackList);
-			console.log("thisTypeTile: " + thisTypeTile);
+			this.debug("thisTypeTile: " + thisTypeTile);
 			var returnType = thisTypeTile.length-1;
 			return thisTypeTile[returnType];
 		}else{
