@@ -8,10 +8,10 @@ ctx.webkitImageSmoothingEnabled = false;
 ctx.msImageSmoothingEnabled = false;
 ctx.imageSmoothingEnabled = false;
 var room1MaxSize = 100;
-var room1 = new genRoom(room1MaxSize, debug);
+var room1 = new genRoom(room1MaxSize, 3, debug);
 var fullArrayOfMap = null;
 var offset = {x : 0 , y : 0 , zoom : 0 };
-var tile = {size: 10, fullSize: 50, playerScale: 20};
+var tile = {size: 10, fullSize: 50, playerScale: 20, mob: 30};
 var playerSpeed = 4.0;
 var debug = false;
 function render () {
@@ -25,15 +25,22 @@ function render () {
 			for (var yi = 0; yi < fullArrayOfMap[xi].length; yi++) {
 		  	var x = xi*tile.fullSize-((room1MaxSize/2)*tile.fullSize)+(canvas.width/2)-offset.x;
 		  	var y = yi*tile.fullSize-((room1MaxSize/2)*tile.fullSize)+(canvas.height/2)-offset.y;
-	  		if (fullArrayOfMap[xi][yi] == 100) {
-	  			ctx.fillStyle="black";
+	  		if (fullArrayOfMap[xi][yi] == null) {
+	  			ctx.fillStyle="orange";
   				ctx.fillRect(x, y, tile.fullSize, tile.fullSize);
-	  		}else if(fullArrayOfMap[xi][yi] == null){
-          ctx.fillStyle="orange";
+	  		}else if(fullArrayOfMap[xi][yi].type == 100){
+          ctx.fillStyle="black";
 			    ctx.fillRect(x, y, tile.fullSize, tile.fullSize);
 	  		}else{
-		  		var tilePlace = rendertile(fullArrayOfMap[xi][yi]);
+		  		var tilePlace = rendertile(fullArrayOfMap[xi][yi].type);
 		  		ctx.drawImage(tileSprit, tilePlace.x, tilePlace.y, tile.size, tile.size, x, y, tile.fullSize, tile.fullSize);
+          // render mobs
+          for (var mobI = 0; mobI < fullArrayOfMap[xi][yi].mobs.length; mobI++) {
+            var mob = fullArrayOfMap[xi][yi].mobs[mobI];
+            ctx.fillStyle=mob.color;
+            ctx.fillRect(x+mob.x+mob.offset.x, y+mob.y+mob.offset.y, tile.mob, tile.mob);
+          }
+          ctx.fillText(fullArrayOfMap[xi][yi].mobs.length, x+10, y+tile.fullSize - 10);
 				}
 			}
 	 	}
@@ -88,7 +95,7 @@ function collision (type) {
     		return true;
     	}
     }
-    //ctx.fillText('no collision', 10 , canvas.height - 20);
+    ctx.fillText('no collision', 10 , canvas.height - 20);
     return false;
 }
 var gameMove = {up: false, down: false, right: false, left: false, zoomOut: false, zoomIn: false};
@@ -101,6 +108,24 @@ jQuery(function($) {
   });
   $( "#tilesheat" ).click(function() {
     tileSprit = document.getElementById('tile');
+  });
+  $( "#smallplayer" ).click(function() {
+    tile.playerScale = 45;
+  });
+  $( "#normalplayer" ).click(function() {
+    tile.playerScale  = 20;
+  });
+  $( "#bigmapsize" ).click(function() {
+    tile.fullSize = 200;
+  });
+  $( "#normalmapsize" ).click(function() {
+    tile.fullSize = 50;
+  });
+  $( "#game" ).click(function () {
+    tile.playerScale = 45;
+    tile.mob = 30;
+    tile.fullSize = 300;
+    room1.loadMob(tile.fullSize, tile.mob);
   });
   loop();
   function loop () {
@@ -139,6 +164,7 @@ jQuery(function($) {
       //offset.zoom += 1;
     }
     var start = Date.now();
+    room1.mobUpdate();
     render();
     var end = Date.now();
     ctx.font = '16px sans-serif'

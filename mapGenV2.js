@@ -1,4 +1,4 @@
-function genRoom (arraySize, debug) {
+function genRoom (arraySize, maxTrin, debug) {
 	this.arraySize = arraySize;
 	this.debugStatus = debug;
 	//pre settings
@@ -14,6 +14,7 @@ function genRoom (arraySize, debug) {
 	}
 	this.tile = {size: 10, fullSize: 50};
 	this.fullArrayOfMap = [];
+	this.maxTrin = maxTrin;
 	this.debug = function(data) {
 		if (this.debugStatus) {
 			console.log(data);
@@ -30,7 +31,7 @@ function genRoom (arraySize, debug) {
 		//while(startT == 10){
 		var startT = Math.floor((Math.random() * 15) + 2);
 		//}
-		this.fullArrayOfMap[w][h] = startT;
+		this.fullArrayOfMap[w][h] = new Room(startT);
 		this.getNext(w, h, startT, 0);
 		
 	}
@@ -40,10 +41,10 @@ function genRoom (arraySize, debug) {
 		if(this.way.right.indexOf(t) > -1 && this.fullArrayOfMap[w+1][h] == null) {
 			var newTileType = this.getThisTile(w+1, h);
 			if (newTileType != null) {
-				this.fullArrayOfMap[w+1][h] = newTileType;
+				this.fullArrayOfMap[w+1][h] = new Room(newTileType);
 				this.debug("w:" + (w+1) + " h:" + h + " t:" + newTileType);
 				//renderTile(w+1, h, newTileType);
-				if (this.way.way1.indexOf(newTileType) == -1 && maxTrin < 10) {
+				if (this.way.way1.indexOf(newTileType) == -1 && maxTrin < this.maxTrin) {
 					move.r = true;
 					move.rt = newTileType;
 					//getNext(w+1,h, newTileType, ++maxTrin);
@@ -53,10 +54,10 @@ function genRoom (arraySize, debug) {
 		if(this.way.left.indexOf(t) > -1 && this.fullArrayOfMap[w-1][h] == null) {
 			var newTileType = this.getThisTile(w-1, h);
 			if (newTileType != null) {
-				this.fullArrayOfMap[w-1][h] = newTileType;
+				this.fullArrayOfMap[w-1][h] = new Room(newTileType);
 				this.debug("w:" + (w-1) + " h:" + h + " t:" + newTileType);
 				//renderTile(w-1, h, newTileType);
-				if (this.way.way1.indexOf(newTileType) == -1 && maxTrin < 10) {
+				if (this.way.way1.indexOf(newTileType) == -1 && maxTrin < this.maxTrin) {
 					move.l = true;
 					move.lt = newTileType;
 					//getNext(w-1,h, newTileType, ++maxTrin);
@@ -66,10 +67,10 @@ function genRoom (arraySize, debug) {
 		if(this.way.up.indexOf(t) > -1 && this.fullArrayOfMap[w][h-1] == null) {
 			var newTileType = this.getThisTile(w, h-1);
 			if (newTileType != null) {
-				this.fullArrayOfMap[w][h-1] = newTileType;
+				this.fullArrayOfMap[w][h-1] = new Room(newTileType);
 				this.debug("w:" + w + " h:" + (h-1) + " t:" + newTileType);
 				//renderTile(w, h-1, newTileType);
-				if (this.way.way1.indexOf(newTileType) == -1 && maxTrin < 10) {
+				if (this.way.way1.indexOf(newTileType) == -1 && maxTrin < this.maxTrin) {
 					move.u = true;
 					move.ut = newTileType;
 					//getNext(w, h-1, newTileType, ++maxTrin);
@@ -79,10 +80,10 @@ function genRoom (arraySize, debug) {
 		if(this.way.down.indexOf(t) > -1 && this.fullArrayOfMap[w][h+1] == null) {
 			var newTileType = this.getThisTile(w, h+1);
 			if (newTileType != null) {
-				this.fullArrayOfMap[w][h+1] = newTileType;
+				this.fullArrayOfMap[w][h+1] = new Room(newTileType);
 				this.debug("w:" + w + " h:" + (h+1) + " t:" + newTileType);
 				//renderTile(w, h+1, newTileType);
-				if (this.way.way1.indexOf(newTileType) == -1 && maxTrin < 10) {
+				if (this.way.way1.indexOf(newTileType) == -1 && maxTrin < this.maxTrin) {
 					move.d = true;
 					move.dt = newTileType;
 					//getNext(w, h+1, newTileType, ++maxTrin);
@@ -198,7 +199,7 @@ function genRoom (arraySize, debug) {
 		var haveWay = [];
 		this.debug("h b:" + w + " " + h)
 		if (this.fullArrayOfMap[w+1][h] != null) {
-			if(this.way.left.indexOf(this.fullArrayOfMap[w+1][h]) > -1){
+			if(this.way.left.indexOf(this.fullArrayOfMap[w+1][h].type) > -1){
 				haveWay.push("right");
 			}
 			else
@@ -207,7 +208,7 @@ function genRoom (arraySize, debug) {
 			}
 		};
 		if (this.fullArrayOfMap[w][h+1] != null) {
-			if(this.way.up.indexOf(this.fullArrayOfMap[w][h+1]) > -1){
+			if(this.way.up.indexOf(this.fullArrayOfMap[w][h+1].type) > -1){
 				haveWay.push("down");
 			}
 			else
@@ -216,7 +217,7 @@ function genRoom (arraySize, debug) {
 			}
 		};
 		if (this.fullArrayOfMap[w-1][h] != null) {
-			if(this.way.right.indexOf(this.fullArrayOfMap[w-1][h]) > -1){
+			if(this.way.right.indexOf(this.fullArrayOfMap[w-1][h].type) > -1){
 				haveWay.push("left");
 			}
 			else
@@ -225,7 +226,7 @@ function genRoom (arraySize, debug) {
 			}
 		};
 		if (this.fullArrayOfMap[w][h-1] != null) {
-			if(this.way.down.indexOf(this.fullArrayOfMap[w][h-1]) > -1){
+			if(this.way.down.indexOf(this.fullArrayOfMap[w][h-1].type) > -1){
 				haveWay.push("up");
 			}
 			else
@@ -249,7 +250,7 @@ function genRoom (arraySize, debug) {
 		var haveWay = [];
 		this.debug("h b:" + w + " " + h)
 		if (this.fullArrayOfMap[w+1][h] != null) {
-			if(this.way.left.indexOf(this.fullArrayOfMap[w+1][h]) > -1){
+			if(this.way.left.indexOf(this.fullArrayOfMap[w+1][h].type) > -1){
 				haveWay.push("right");
 			}
 			else
@@ -258,7 +259,7 @@ function genRoom (arraySize, debug) {
 			}
 		};
 		if (this.fullArrayOfMap[w][h+1] != null) {
-			if(this.way.up.indexOf(this.fullArrayOfMap[w][h+1]) > -1){
+			if(this.way.up.indexOf(this.fullArrayOfMap[w][h+1].type) > -1){
 				haveWay.push("down");
 			}
 			else
@@ -267,7 +268,7 @@ function genRoom (arraySize, debug) {
 			}
 		};
 		if (this.fullArrayOfMap[w-1][h] != null) {
-			if(this.way.right.indexOf(this.fullArrayOfMap[w-1][h]) > -1){
+			if(this.way.right.indexOf(this.fullArrayOfMap[w-1][h].type) > -1){
 				haveWay.push("left");
 			}
 			else
@@ -276,7 +277,7 @@ function genRoom (arraySize, debug) {
 			}
 		};
 		if (this.fullArrayOfMap[w][h-1] != null) {
-			if(this.way.down.indexOf(this.fullArrayOfMap[w][h-1]) > -1){
+			if(this.way.down.indexOf(this.fullArrayOfMap[w][h-1].type) > -1){
 				haveWay.push("up");
 			}
 			else
@@ -293,5 +294,31 @@ function genRoom (arraySize, debug) {
 			//renderTile(w, h, 25);
 			return null;
 		}
+	}
+	this.loadMob = function (tileFullSize, mobSize) {
+		if(this.fullArrayOfMap != null){
+			for (var xi = 0; xi < this.fullArrayOfMap.length; xi++) {
+		        for (var yi = 0; yi < this.fullArrayOfMap[xi].length; yi++) {
+		          if (this.fullArrayOfMap[xi][yi] != null) {
+		            
+		            this.fullArrayOfMap[xi][yi].load(tile.fullSize, tile.mob);
+		            console.log("done load mobs");
+		          };
+		        }
+	        }
+	    }
+	}
+	this.mobUpdate = function () {
+		if(this.fullArrayOfMap != null){
+			for (var xi = 0; xi < this.fullArrayOfMap.length; xi++) {
+		        for (var yi = 0; yi < this.fullArrayOfMap[xi].length; yi++) {
+		          if (this.fullArrayOfMap[xi][yi] != null) {
+		            
+		            this.fullArrayOfMap[xi][yi].update();
+		            
+		          };
+		        }
+	        }
+	    }
 	}
 }
